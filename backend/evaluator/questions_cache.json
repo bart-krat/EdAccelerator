@@ -1,0 +1,83 @@
+{
+  "easy": [
+    {
+      "question": "What is the role of the queen bee in the hive?",
+      "answer": "To lay eggs.",
+      "explanation": "The passage states that the queen bee's main job is to lay eggs and keep the colony growing."
+    },
+    {
+      "question": "How many bees can be in a single hive?",
+      "answer": "Up to 60,000 bees.",
+      "explanation": "The passage mentions that a single hive can contain up to 60,000 bees."
+    },
+    {
+      "question": "What do worker bees do?",
+      "answer": "They clean cells, feed larvae, and build honeycomb.",
+      "explanation": "The passage describes various responsibilities of worker bees, including cleaning, feeding, and building honeycomb."
+    },
+    {
+      "question": "What communication method do bees use?",
+      "answer": "Dancing.",
+      "explanation": "The passage indicates that bees communicate through dancing, specifically mentioning the 'waggle dance.'"
+    },
+    {
+      "question": "What are male bees called?",
+      "answer": "Drones.",
+      "explanation": "The passage states that male bees are referred to as drones."
+    }
+  ],
+  "medium": [
+    {
+      "question": "Why do drones get pushed out of the hive in autumn?",
+      "answer": "To conserve resources when food becomes scarce.",
+      "explanation": "The passage explains that as food becomes scarce in autumn, workers push drones out to conserve resources."
+    },
+    {
+      "question": "How do worker bees transition from one role to another in the hive?",
+      "answer": "As they get older.",
+      "explanation": "The passage mentions that young workers start with certain tasks and gradually take on different roles as they age."
+    },
+    {
+      "question": "How does a forager bee inform others about food sources?",
+      "answer": "By performing a 'waggle dance.'",
+      "explanation": "The passage explains that foraging bees perform a dance that conveys information about the location of food."
+    },
+    {
+      "question": "What does the angle of a bee's dance indicate?",
+      "answer": "The direction of the food source relative to the sun.",
+      "explanation": "The passage specifies that the angle of the waggle dance shows the direction of the food source."
+    },
+    {
+      "question": "Why is the queen bee not the decision-maker in the hive?",
+      "answer": "Her main job is to lay eggs.",
+      "explanation": "The passage explains that while the queen bee is central to the hive, she does not make decisions; her role is focused on reproduction."
+    }
+  ],
+  "hard": [
+    {
+      "question": "What might the author want readers to understand about the organization of a bee hive?",
+      "answer": "The complex and efficient social structure within a hive.",
+      "explanation": "The passage emphasizes how organized a beehive is, comparing it to human cities, which highlights the efficiency of bees."
+    },
+    {
+      "question": "Why might the author have chosen to mention the history of honey production?",
+      "answer": "To show the longevity and importance of bees in nature.",
+      "explanation": "By noting that bees have been making honey for over 100 million years, the author highlights their ecological significance and enduring nature."
+    },
+    {
+      "question": "In what ways does the information about bee roles challenge common perceptions of insects?",
+      "answer": "It reveals their complex social structure and purposeful lives.",
+      "explanation": "This information can challenge the view of insects as simple or mindless creatures by showing their organized roles and communication methods."
+    },
+    {
+      "question": "How does the passage reflect the interdependence within a bee colony?",
+      "answer": "Each bee has a specific role that contributes to the hive's overall success.",
+      "explanation": "The passage describes different roles taken by bees and how they collectively sustain the hive, illustrating interdependence."
+    },
+    {
+      "question": "What can the relationship between the queen and worker bees suggest about leadership?",
+      "answer": "That effective leadership often involves delegation and specific roles.",
+      "explanation": "The passage suggests that while the queen lays eggs, the worker bees handle other duties, indicating a collaborative leadership model rather than authoritarian control."
+    }
+  ]
+}
