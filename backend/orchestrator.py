@@ -227,6 +227,9 @@ class SessionOrchestrator:
 
             logger.info(f"Session {self.session_id[:8]}... → TEACHER (level: {plan_data['student_level']})")
 
+            # Checkpoint: evaluator complete, starting teacher
+            self._persist_session(checkpoint="evaluator_complete")
+
             return {
                 "response": result["response"] + "\n\n" + teacher_intro,
                 "phase": "teacher",
@@ -266,6 +269,9 @@ class SessionOrchestrator:
             self.state.transition_to(Phase.QUIZ)
 
             logger.info(f"Session {self.session_id[:8]}... → QUIZ (after {self.state.teacher_questions_asked} questions)")
+
+            # Checkpoint: teacher complete, starting quiz
+            self._persist_session(checkpoint="teacher_complete")
 
             # Return quiz data for frontend overlay (don't include answers)
             quiz_questions = [
@@ -376,8 +382,8 @@ Here's your first question:
 
         logger.info(f"Session {self.session_id[:8]}... → REVIEW (score: {correct_count}/{total})")
 
-        # Persist session after quiz completion (checkpoint)
-        self._persist_session()
+        # Checkpoint: quiz complete, entering review
+        self._persist_session(checkpoint="quiz_complete")
 
         return {
             "success": True,
@@ -529,8 +535,8 @@ What would you like to know about your performance?"""
 
         self.state.add_message(Phase.REVIEW, "assistant", response)
 
-        # Persist completed session to MongoDB (if configured)
-        self._persist_session()
+        # Checkpoint: session complete
+        self._persist_session(checkpoint="session_complete")
 
         return {
             "response": response,
@@ -540,16 +546,24 @@ What would you like to know about your performance?"""
             "session_complete": True
         }
 
-    def _persist_session(self) -> None:
+    def _persist_session(self, checkpoint: str = None) -> None:
         """
         Persist the session state to MongoDB.
 
         This is a no-op if MongoDB is not configured.
+        Called after phase transitions to enable session recovery.
+
+        Args:
+            checkpoint: Optional label for the checkpoint (e.g., "evaluator_complete")
         """
         try:
             persistence = get_persistence()
             session_data = self.state.to_dict()
+            if checkpoint:
+                session_data["last_checkpoint"] = checkpoint
             persistence.save_session(session_data)
+            if checkpoint:
+                logger.info(f"Session {self.session_id[:8]}... checkpoint: {checkpoint}")
         except Exception as e:
             # Never let persistence failures break the session
             logger.warning(f"Session persistence failed (non-fatal): {e}")
@@ -616,10 +630,66 @@ _orchestrators: dict[str, SessionOrchestrator] = {}
 
 
 def get_orchestrator(session_id: str) -> SessionOrchestrator:
-    """Get or create an orchestrator for a session."""
+    """
+    Get or create an orchestrator for a session.
+
+    Attempts to restore from MongoDB if session not in memory.
+    """
     if session_id not in _orchestrators:
-        _orchestrators[session_id] = SessionOrchestrator(session_id)
+        # Try to restore from MongoDB
+        restored = _try_restore_session(session_id)
+        if not restored:
+            _orchestrators[session_id] = SessionOrchestrator(session_id)
     return _orchestrators[session_id]
+
+
+def _try_restore_session(session_id: str) -> bool:
+    """
+    Attempt to restore a session from MongoDB.
+
+    Returns True if session was restored, False otherwise.
+    """
+    try:
+        persistence = get_persistence()
+        if not persistence.is_available():
+            return False
+
+        session_data = persistence.get_session(session_id)
+        if not session_data:
+            return False
+
+        # Restore session state
+        store = get_session_store()
+        state = store.get_or_create(session_id)
+
+        # Restore phase
+        phase_str = session_data.get("phase", "evaluator")
+        state.phase = Phase(phase_str)
+
+        # Restore plan if exists
+        if session_data.get("plan"):
+            plan = session_data["plan"]
+            state.set_plan(
+                student_level=plan.get("student_level", "medium"),
+                teaching_focus=plan.get("teaching_focus", "")
+            )
+
+        # Restore stats
+        stats = session_data.get("stats", {})
+        state.teacher_questions_asked = stats.get("teacher_questions_asked", 0)
+        state.current_difficulty = stats.get("current_difficulty", "medium")
+
+        # Create orchestrator with restored state
+        _orchestrators[session_id] = SessionOrchestrator(session_id)
+
+        checkpoint = session_data.get("last_checkpoint", "unknown")
+        logger.info(f"Session {session_id[:8]}... restored from checkpoint: {checkpoint}")
+
+        return True
+
+    except Exception as e:
+        logger.warning(f"Failed to restore session {session_id[:8]}...: {e}")
+        return False
 
 
 def create_orchestrator(session_id: str) -> SessionOrchestrator:

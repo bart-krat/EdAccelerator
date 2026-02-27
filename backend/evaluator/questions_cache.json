@@ -1,83 +1,83 @@
 {
   "easy": [
     {
-      "question": "Who is the only bee that lays eggs?",
-      "answer": "The queen bee.",
-      "explanation": "The passage states that the queen bee is the only bee that lays eggs, making this a direct recall question."
-    },
-    {
-      "question": "What do male bees, or drones, do?",
-      "answer": "Their only purpose is to mate with queens from other hives.",
-      "explanation": "This is explicitly mentioned in the text regarding the role of drones."
-    },
-    {
-      "question": "Where do foragers collect nectar and pollen?",
-      "answer": "Up to five miles from the hive.",
-      "explanation": "The passage specifies that foragers can fly up to five miles from the hive to gather food."
-    },
-    {
-      "question": "What do worker bees do inside the hive?",
-      "answer": "They clean cells, feed larvae, and build honeycomb.",
-      "explanation": "The passage clearly lists these tasks as part of the responsibilities of young worker bees."
+      "question": "What is the main job of the queen bee?",
+      "answer": "To lay eggs.",
+      "explanation": "The passage states that the queen bee's main job is simply to lay eggs and keep the colony growing."
     },
     {
       "question": "How many bees can be in a single hive?",
       "answer": "Up to 60,000 bees.",
-      "explanation": "This fact is mentioned directly in the passage, making it a straightforward recall question."
+      "explanation": "The text mentions that a single hive can contain up to 60,000 bees."
+    },
+    {
+      "question": "What do worker bees do?",
+      "answer": "They perform all other jobs except laying eggs.",
+      "explanation": "The passage describes worker bees as the ones who do everything else apart from the queen's egg-laying."
+    },
+    {
+      "question": "What do male bees, or drones, do?",
+      "answer": "Their purpose is to mate with queens from other hives.",
+      "explanation": "The passage specifically states that the only purpose of drones is to mate with queens."
+    },
+    {
+      "question": "How do bees communicate?",
+      "answer": "Through dancing.",
+      "explanation": "The text states that bees communicate through dancing, particularly with the 'waggle dance' to indicate food sources."
     }
   ],
   "medium": [
     {
-      "question": "Why do the workers push the drones out of the hive in autumn?",
+      "question": "Why do worker bees push drones out of the hive in autumn?",
       "answer": "To conserve resources when food becomes scarce.",
-      "explanation": "This question requires making a connection between the food scarcity mentioned and the behavior of worker bees."
+      "explanation": "The passage explains that in autumn, the workers push the drones out to conserve resources as food gets scarce."
     },
     {
-      "question": "How do bees communicate the location of food?",
-      "answer": "Through a 'waggle dance'.",
-      "explanation": "The passage describes this communication method, requiring the reader to infer the process of their communication."
+      "question": "How do young worker bees contribute to the hive's functioning before becoming foragers?",
+      "answer": "They clean cells, feed larvae, and build honeycomb.",
+      "explanation": "Young worker bees perform essential tasks inside the hive, maintaining its structure and nurturing the next generation."
     },
     {
-      "question": "What happens to young worker bees as they age?",
-      "answer": "They graduate to guarding the hive entrance and then become foragers.",
-      "explanation": "The text explains the progression of worker bees' roles over time, indicating an understanding of their life cycle."
+      "question": "How does the waggle dance of a forager bee convey information?",
+      "answer": "It shows the direction and distance of the food source.",
+      "explanation": "The passage describes that the angle of the dance indicates direction relative to the sun and the length of the waggle shows the distance."
     },
     {
-      "question": "Why is the queen bee's role in decision-making considered limited?",
-      "answer": "Because her main job is to lay eggs and she doesn't make decisions for the hive.",
-      "explanation": "This question asks the reader to infer from the text that the queen doesn't have a decision-making role despite her title."
+      "question": "What roles do older worker bees take on as they age?",
+      "answer": "They guard the hive entrance and become foragers.",
+      "explanation": "The passage indicates that as the worker bees get older, they take on the role of guarding the hive and eventually foraging."
     },
     {
-      "question": "How do worker bees contribute to the production of honey?",
-      "answer": "They collect nectar and pollen which is necessary for making honey.",
-      "explanation": "This question links the roles of worker bees to the overall product of honey, as discussed in the passage."
+      "question": "What is significant about the way honey has been made for over 100 million years?",
+      "answer": "It shows consistency in the bees' behavior and role in the ecosystem.",
+      "explanation": "The passage emphasizes that this long-standing method reflects the importance of bees in nature."
     }
   ],
   "hard": [
     {
-      "question": "Compare the roles of worker bees and drones in the hive. What are the key differences?",
-      "answer": "Worker bees perform various tasks to maintain the hive, while drones only mate with queens and do not contribute to hive maintenance.",
-      "explanation": "This question requires an analytical approach where the reader contrasts the active roles of worker bees with the passive role of drones."
+      "question": "Compare the roles of the queen bee and worker bees. How do their functions differ?",
+      "answer": "The queen bee focuses solely on laying eggs while worker bees perform various tasks for the colony.",
+      "explanation": "The queen's role is specialized and limited to reproduction, whereas worker bees have diverse responsibilities that support hive functionality."
     },
     {
-      "question": "Evaluate the importance of communication through the waggle dance in the hive's success.",
-      "answer": "The waggle dance is crucial for the hive's success as it helps locate food sources efficiently.",
-      "explanation": "This question asks for an assessment of how communication affects the hive\u2019s functioning and survival, requiring critical thinking."
+      "question": "Evaluate the importance of the waggle dance in relation to hive survival. Why might this form of communication be vital?",
+      "answer": "The waggle dance is crucial for locating food sources, which is essential for the survival of the hive.",
+      "explanation": "Effective communication via the waggle dance allows bees to quickly find resources, which is vital for food, especially during scarce conditions."
     },
     {
-      "question": "What might happen to a colony if the queen bee could also make decisions?",
-      "answer": "It could lead to confusion and inefficiencies, as the current system relies on the division of roles.",
-      "explanation": "This question encourages the reader to consider the implications of role specialization in hive management."
+      "question": "If a hive is deprived of foragers, what impact would that have on the colony? Analyze the potential consequences.",
+      "answer": "The colony would struggle for food, leading to weakened bees and possibly the collapse of the hive.",
+      "explanation": "Foragers are responsible for bringing back nectar and pollen; without them, the hive would lack sustenance, jeopardizing its survival."
     },
     {
-      "question": "Infer the author\u2019s purpose in describing the organization of bees compared to human cities.",
-      "answer": "The author aims to highlight the complexity and efficiency of natural systems in contrast to human society.",
-      "explanation": "This question requires the reader to think about the intended message in comparing bees to cities, which reflects on nature's organization."
+      "question": "How does the behavior of drones reflect the resource management strategy of the hive?",
+      "answer": "Drones are excluded in times of scarcity, indicating an adaptive strategy for resource conservation.",
+      "explanation": "By pushing out drones during lean periods, the hive prioritizes its survival and efficiency, demonstrating a strategy of resource management."
     },
     {
-      "question": "If a forager finds a source of flowers far from the hive, how might its dance differ from one closer to the hive?",
-      "answer": "The waggle dance would be longer to indicate greater distance and may show a different angle relative to the sun.",
-      "explanation": "This question prompts the reader to apply details from the passage about how distance and direction are communicated in the waggle dance."
+      "question": "What is the author's purpose in highlighting the efficiency and organization of the hive compared to human cities?",
+      "answer": "To illustrate the complexity and sophistication of bee societies.",
+      "explanation": "By comparing bee hives to human cities, the author emphasizes bees' advanced social structure and their ecological importance, advocating for respect and appreciation."
     }
   ]
 }
