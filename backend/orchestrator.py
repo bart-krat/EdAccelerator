@@ -22,6 +22,7 @@ from evaluator.orchestrator import EvaluatorOrchestrator
 from teacher.agent import TeacherAgent
 from quiz.generator import QuizGenerator, Quiz
 from evaluator.question_generator import load_questions
+from persistence import get_persistence
 
 logger = logging.getLogger("orchestrator")
 
@@ -374,6 +375,9 @@ Here's your first question:
 
         logger.info(f"Session {self.session_id[:8]}... → REVIEW (score: {correct_count}/{total})")
 
+        # Persist session after quiz completion (checkpoint)
+        self._persist_session()
+
         return {
             "success": True,
             "phase": "review",
@@ -519,6 +523,9 @@ What would you like to know about your performance?"""
 
         self.state.add_message(Phase.REVIEW, "assistant", response)
 
+        # Persist completed session to MongoDB (if configured)
+        self._persist_session()
+
         return {
             "response": response,
             "phase": "review",
@@ -526,6 +533,20 @@ What would you like to know about your performance?"""
             "transitioned": False,
             "session_complete": True
         }
+
+    def _persist_session(self) -> None:
+        """
+        Persist the session state to MongoDB.
+
+        This is a no-op if MongoDB is not configured.
+        """
+        try:
+            persistence = get_persistence()
+            session_data = self.state.to_dict()
+            persistence.save_session(session_data)
+        except Exception as e:
+            # Never let persistence failures break the session
+            logger.warning(f"Session persistence failed (non-fatal): {e}")
 
     # ============================================================
     # Manual Phase Control

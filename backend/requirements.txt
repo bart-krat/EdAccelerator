@@ -4,3 +4,4 @@ openai>=1.60.0
 python-dotenv==1.0.1
 pydantic>=2.9.0
 pyyaml>=6.0.0
+pymongo>=4.6.0

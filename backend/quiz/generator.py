@@ -176,7 +176,7 @@ Hard: {json.dumps(pool_summary['hard'])}
         if self.student_level == "low":
             distribution = "3 easy, 2 medium, 0 hard"
         elif self.student_level == "high":
-            distribution = "1 easy, 2 medium, 2 hard"
+            distribution = "0 easy, 2 medium, 3 hard"
         else:  # medium
             distribution = "1 easy, 3 medium, 1 hard"
 
