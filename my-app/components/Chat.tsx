@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ScoreCard } from './ScoreCard';
 import { PassageDisplay } from './PassageDisplay';
+import { QuizOverlay } from './QuizOverlay';
 import { EvaluationScores } from '@/lib/types';
 import { samplePassage } from '@/lib/evaluation';
 
@@ -11,6 +12,12 @@ interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+}
+
+interface QuizData {
+  total_questions: number;
+  time_limit_seconds: number;
+  questions: { id: number; question: string; difficulty: 'easy' | 'medium' | 'hard' }[];
 }
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -23,6 +30,13 @@ export function Chat() {
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [scores, setScores] = useState<EvaluationScores | null>(null);
+  const [currentPhase, setCurrentPhase] = useState<string>('evaluator');
+
+  // Quiz state
+  const [quizData, setQuizData] = useState<QuizData | null>(null);
+  const [showQuizButton, setShowQuizButton] = useState(false);
+  const [showQuizOverlay, setShowQuizOverlay] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom
@@ -34,7 +48,6 @@ export function Chat() {
     setIsLoading(true);
 
     try {
-      // Call backend to start session and get intro message
       const response = await fetch(`${BACKEND_URL}/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,8 +58,8 @@ export function Chat() {
 
       setSessionId(data.session_id);
       setHasStarted(true);
+      setCurrentPhase(data.mode || 'evaluator');
 
-      // Add 2 second delay before showing first message
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       setMessages([
@@ -69,13 +82,12 @@ export function Chat() {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading || !sessionId) return;
+    if (!inputValue.trim() || isLoading || !sessionId || showQuizButton) return;
 
     const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
-    // Add user message
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -95,20 +107,24 @@ export function Chat() {
 
       const data = await response.json();
 
-      // Add 2 second delay before showing response
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Add assistant response
       setMessages(prev => [...prev, {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
         content: data.response,
       }]);
 
-      // Check if evaluation complete
+      setCurrentPhase(data.phase || currentPhase);
+
+      // Check if quiz is ready
+      if (data.show_quiz && data.quiz_data) {
+        setQuizData(data.quiz_data);
+        setShowQuizButton(true);
+      }
+
       if (data.is_complete) {
         setIsComplete(true);
-        // Optionally fetch the plan/scores
       }
 
     } catch (error) {
@@ -123,8 +139,50 @@ export function Chat() {
     }
   };
 
+  const handleStartQuiz = () => {
+    setShowQuizButton(false);
+    setShowQuizOverlay(true);
+  };
+
+  const handleQuizComplete = (result: { score: number; total: number; percentage: number }) => {
+    setShowQuizOverlay(false);
+    setCurrentPhase('review');
+
+    // Add a message about quiz completion
+    setMessages(prev => [...prev, {
+      id: `quiz-result-${Date.now()}`,
+      role: 'assistant',
+      content: `**Quiz Complete!**\n\nYou scored ${result.score}/${result.total} (${result.percentage.toFixed(0)}%).\n\nGreat job completing your learning session! Feel free to ask any questions about your performance.`,
+    }]);
+  };
+
+  const handleQuizClose = () => {
+    setShowQuizOverlay(false);
+  };
+
+  // Get phase display name
+  const getPhaseLabel = () => {
+    switch (currentPhase) {
+      case 'evaluator': return 'Assessment';
+      case 'teacher': return 'Practice';
+      case 'quiz': return 'Quiz';
+      case 'review': return 'Review';
+      default: return '';
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[var(--bg-primary)]">
+      {/* Quiz Overlay */}
+      {showQuizOverlay && quizData && sessionId && (
+        <QuizOverlay
+          quizData={quizData}
+          sessionId={sessionId}
+          onComplete={handleQuizComplete}
+          onClose={handleQuizClose}
+        />
+      )}
+
       {/* Left Side - Passage Display */}
       <div className="w-[450px] flex-shrink-0">
         <PassageDisplay
@@ -136,6 +194,16 @@ export function Chat() {
 
       {/* Right Side - Chat Interface */}
       <div className="flex-1 flex flex-col">
+        {/* Phase Indicator */}
+        {hasStarted && (
+          <div className="px-6 py-2 bg-[var(--bg-secondary)] border-b-2 border-[var(--border)]">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[var(--text-secondary)]">Current Phase:</span>
+              <span className="text-sm font-medium text-[var(--accent)]">{getPhaseLabel()}</span>
+            </div>
+          </div>
+        )}
+
         {/* Chat Area */}
         <main className="flex-1 overflow-y-auto chat-scroll px-6 py-4">
           <div className="max-w-2xl">
@@ -152,6 +220,18 @@ export function Chat() {
             {messages.map((message) => (
               <ChatMessage key={message.id} message={message} />
             ))}
+
+            {/* Start Quiz Button */}
+            {showQuizButton && (
+              <div className="flex justify-center my-6">
+                <button
+                  onClick={handleStartQuiz}
+                  className="px-8 py-4 rounded-xl bg-[var(--accent)] text-white font-bold text-lg hover:bg-[var(--accent-hover)] transition-colors border-2 border-[var(--border)] shadow-lg"
+                >
+                  Start Quiz
+                </button>
+              </div>
+            )}
 
             {/* Score card */}
             {scores && <ScoreCard scores={scores} />}
@@ -180,13 +260,19 @@ export function Chat() {
               type="text"
               value={inputValue}
               onChange={handleInputChange}
-              placeholder={hasStarted ? "Type your message..." : "Click 'Finished Reading' to start"}
+              placeholder={
+                showQuizButton
+                  ? "Click 'Start Quiz' to continue"
+                  : hasStarted
+                    ? "Type your message..."
+                    : "Click 'Finished Reading' to start"
+              }
               className="flex-1 px-4 py-3 rounded-xl bg-[var(--bg-chat)] border-2 border-[var(--border)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] focus:outline-none focus:border-[var(--accent)] transition-colors disabled:opacity-50"
-              disabled={isLoading || !hasStarted}
+              disabled={isLoading || !hasStarted || showQuizButton}
             />
             <button
               type="submit"
-              disabled={isLoading || !inputValue.trim() || !hasStarted}
+              disabled={isLoading || !inputValue.trim() || !hasStarted || showQuizButton}
               className="px-6 py-3 rounded-xl bg-[var(--accent)] text-white font-medium hover:bg-[var(--accent-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-2 border-[var(--border)]"
             >
               Send

@@ -3,19 +3,26 @@ Question Generator
 
 Sends the passage to OpenAI and generates 3 pools of questions:
 - Easy (5 questions)
-- Medium (5 questions)  
+- Medium (5 questions)
 - Hard (5 questions)
+
+Called at server startup to generate fresh, contextual questions.
 """
 
 from openai import OpenAI
 from pydantic import BaseModel
 import json
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
+logger = logging.getLogger("question_generator")
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+CACHE_PATH = os.path.join(os.path.dirname(__file__), "questions_cache.json")
 
 
 class Question(BaseModel):
@@ -94,6 +101,46 @@ Each question should have:
     
     result = json.loads(response.choices[0].message.content)
     return QuestionPool(**result)
+
+
+def save_questions(questions: QuestionPool) -> None:
+    """Save questions to cache file."""
+    with open(CACHE_PATH, "w") as f:
+        json.dump(questions.model_dump(), f, indent=2)
+    logger.info(f"Saved questions to {CACHE_PATH}")
+
+
+def load_questions() -> dict | None:
+    """Load questions from cache file."""
+    if os.path.exists(CACHE_PATH):
+        with open(CACHE_PATH, "r") as f:
+            return json.load(f)
+    return None
+
+
+def initialize_questions(passage_title: str, passage_content: str, force_regenerate: bool = False) -> dict:
+    """
+    Initialize question pools at server startup.
+
+    Args:
+        passage_title: Title of the reading passage
+        passage_content: Content of the reading passage
+        force_regenerate: If True, always generate new questions even if cache exists
+
+    Returns:
+        dict with easy, medium, hard question pools
+    """
+    if not force_regenerate:
+        cached = load_questions()
+        if cached:
+            logger.info("Using cached questions")
+            return cached
+
+    logger.info("Generating new question pools...")
+    questions = generate_questions(passage_title, passage_content)
+    save_questions(questions)
+    logger.info(f"Generated: {len(questions.easy)} easy, {len(questions.medium)} medium, {len(questions.hard)} hard")
+    return questions.model_dump()
 
 
 if __name__ == "__main__":

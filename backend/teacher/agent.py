@@ -53,45 +53,48 @@ class TeacherAgent:
     Interactive teaching agent that adapts to the student's level.
     """
 
-    def __init__(self, passage_title: str, passage_content: str, session_id: str, plan: dict = None):
+    def __init__(self, passage_title: str, passage_content: str, session_id: str, plan: dict = None, already_asked_questions: list[str] = None):
         self.session_id = session_id
         self.passage_title = passage_title
         self.passage_content = passage_content
-        
+
         # Load plan or use provided one
         self.plan = plan or load_plan(session_id) or self._default_plan()
-        
+
         # Load question pools
         self.question_pools = load_question_pools()
-        
+
+        # Questions already asked in evaluator (to avoid repetition)
+        self.already_asked = already_asked_questions or []
+
         # Session state
         self.conversation_history: list[dict] = []
         self.questions_asked: list[str] = []
         self.correct_answers = 0
         self.total_answers = 0
-        self.current_difficulty = self.plan.get("recommended_difficulty", "medium")
-        
+
+        # Derive starting difficulty from student level
+        level = self.plan.get("student_level", "medium")
+        self.current_difficulty = {"low": "easy", "medium": "medium", "high": "hard"}.get(level, "medium")
+
         logger.info("=" * 60)
         logger.info("📚 TEACHER SESSION STARTED")
         logger.info(f"   Session: {session_id}")
-        logger.info(f"   Student Level: {self.plan.get('student_level', 'unknown')}")
-        logger.info(f"   Difficulty: {self.current_difficulty}")
-        logger.info(f"   Focus Areas: {self.plan.get('focus_areas', [])}")
+        logger.info(f"   Student Level: {level}")
+        logger.info(f"   Starting Difficulty: {self.current_difficulty}")
+        logger.info(f"   Teaching Focus: {self.plan.get('teaching_focus', 'N/A')[:50]}...")
         logger.info("=" * 60)
 
     def _default_plan(self) -> dict:
         """Default plan if none exists."""
         return {
-            "student_level": "intermediate",
-            "recommended_difficulty": "medium",
-            "focus_areas": ["comprehension"],
-            "interests": "",
-            "teaching_approach": "balanced"
+            "student_level": "medium",
+            "teaching_focus": "Strengthen fundamentals and encourage more detailed responses. Build confidence with medium-difficulty questions."
         }
 
     def _build_system_prompt(self) -> str:
         """Build the system prompt for the teaching LLM."""
-        
+
         return f"""You are an engaging, supportive reading tutor working with a student.
 
 PASSAGE:
@@ -99,11 +102,8 @@ Title: {self.passage_title}
 {self.passage_content}
 
 STUDENT PROFILE:
-- Level: {self.plan.get('student_level', 'intermediate')}
-- Strengths: {self.plan.get('strengths', [])}
-- Areas to improve: {self.plan.get('weaknesses', [])}
-- Interests: {self.plan.get('interests', 'general reading')}
-- Teaching approach: {self.plan.get('teaching_approach', 'balanced')}
+- Level: {self.plan.get('student_level', 'medium')}
+- Teaching Focus: {self.plan.get('teaching_focus', 'Strengthen fundamentals and encourage more detailed responses.')}
 
 CURRENT SESSION:
 - Questions asked so far: {len(self.questions_asked)}
@@ -119,7 +119,10 @@ YOUR TEACHING STYLE:
 6. Celebrate small wins to build confidence
 7. If they seem stuck, offer hints rather than answers
 
-QUESTION POOL (use these or create similar ones):
+QUESTIONS ALREADY ASKED (DO NOT repeat these):
+{json.dumps(self.already_asked, indent=2)}
+
+QUESTION POOL (use NEW questions from these or create similar ones - avoid repeating questions above):
 Easy: {json.dumps([q['question'] for q in self.question_pools['easy']], indent=2)}
 Medium: {json.dumps([q['question'] for q in self.question_pools['medium']], indent=2)}
 Hard: {json.dumps([q['question'] for q in self.question_pools['hard']], indent=2)}
@@ -147,21 +150,23 @@ IMPORTANT:
 
     def get_intro_message(self) -> str:
         """Generate the opening message for the teaching session."""
-        
-        interests = self.plan.get("interests", "")
-        level = self.plan.get("student_level", "intermediate")
-        
+
+        level = self.plan.get("student_level", "medium")
+        teaching_focus = self.plan.get("teaching_focus", "")
+
         prompt = f"""Generate an opening message for a teaching session.
 
 Student info:
 - Level: {level}
-- They found interesting: {interests}
-- Focus areas: {self.plan.get('focus_areas', [])}
+- Teaching focus: {teaching_focus}
+
+IMPORTANT: These questions were already asked - DO NOT ask any of these again:
+{json.dumps(self.already_asked, indent=2)}
 
 Start by:
 1. Welcoming them warmly
 2. Briefly mentioning you'll be practicing together
-3. Asking your first question (use {self.current_difficulty} difficulty)
+3. Asking a NEW question (use {self.current_difficulty} difficulty) - must be different from the ones listed above
 
 Keep it brief and friendly. Return JSON with "message" field."""
 
@@ -273,16 +278,10 @@ if __name__ == "__main__":
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
     from shared.passage import PASSAGE
     
-    # Create a mock plan
+    # Create a mock plan (simplified format)
     mock_plan = {
-        "student_level": "intermediate",
-        "overall_score": 65,
-        "recommended_difficulty": "medium",
-        "strengths": ["engagement", "main idea"],
-        "weaknesses": ["detailed comprehension"],
-        "focus_areas": ["comprehension"],
-        "interests": "the waggle dance and how bees communicate",
-        "teaching_approach": "balanced with scaffolding"
+        "student_level": "medium",
+        "teaching_focus": "Strengthen fundamentals and encourage more detailed responses. Build confidence with medium-difficulty questions."
     }
     
     print("\n")

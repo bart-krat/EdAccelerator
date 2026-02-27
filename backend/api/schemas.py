@@ -11,9 +11,11 @@ from enum import Enum
 
 
 class AgentMode(str, Enum):
-    """Current agent handling the session."""
+    """Current phase of the learning session."""
     EVALUATOR = "evaluator"
     TEACHER = "teacher"
+    QUIZ = "quiz"
+    REVIEW = "review"
 
 
 # ============================================================
@@ -45,11 +47,27 @@ class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, description="User's message")
 
 
+class QuizQuestion(BaseModel):
+    """A quiz question (without answer for frontend)."""
+    id: int
+    question: str
+    difficulty: str
+
+
+class QuizData(BaseModel):
+    """Quiz data sent to frontend."""
+    total_questions: int
+    time_limit_seconds: int
+    questions: List[QuizQuestion]
+
+
 class ChatResponse(BaseModel):
     """Response from the tutor."""
     response: str = Field(..., description="Tutor's response message")
-    is_complete: bool = Field(..., description="Whether evaluation phase is complete")
-    mode: AgentMode = Field(..., description="Current agent mode (evaluator/teacher)")
+    is_complete: bool = Field(..., description="Whether session is complete")
+    mode: AgentMode = Field(..., description="Current phase")
+    show_quiz: Optional[bool] = Field(default=None, description="Whether to show quiz UI")
+    quiz_data: Optional[QuizData] = Field(default=None, description="Quiz questions if show_quiz is true")
 
 
 # ============================================================

@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from api.routes import system_router, session_router, chat_router
+from shared.passage import PASSAGE
+from evaluator.question_generator import initialize_questions
 
 # ============================================================
 # Configuration
@@ -107,6 +109,13 @@ async def startup_event():
     logger.info(f"   Environment: {ENV}")
     logger.info(f"   Allowed Origins: {allowed_origins}")
     logger.info("=" * 50)
+
+    # Generate question pools at startup
+    # In development, always regenerate. In production, use cache if available.
+    force_regen = (ENV == "development")
+    logger.info(f"📝 Initializing question pools (regenerate={force_regen})...")
+    initialize_questions(PASSAGE["title"], PASSAGE["content"], force_regenerate=force_regen)
+    logger.info("✅ Question pools ready")
 
 # ============================================================
 # Entry Point
