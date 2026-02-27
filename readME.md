@@ -30,7 +30,13 @@ At the end of this this teaching session the User will be Quizzed. This quiz wil
 
 After this the User then gets to review the quiz and ask any further questions.
 
+Script Information:
 
+  | `Chat.tsx` | Main orchestrator for the UI... |
+  | `PassageDisplay.tsx` | Sentence-by-sentence reading tracker... |
+  | `ChatMessage.tsx` | Renders individual messages... |
+  | `QuizOverlay.tsx` | Modal overlay for the quiz phase... |
+  | `ScoreCard.tsx` | Visual score display... |
 
 
 **Backend**
@@ -84,3 +90,5 @@ Nothing would be more frustrating from a user perspective if they had to start t
  Please Note deployed version you will be interacting with does not have session_resilience and persistence due to not deploying a MongoDB database.
 
  Review component is simplified to just feedback from the quiz.
+
+ Also current quiz and evaluation is a little rigid and needs further prompt engineering.
