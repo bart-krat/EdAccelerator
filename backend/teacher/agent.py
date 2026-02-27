@@ -18,6 +18,10 @@ import logging
 from datetime import datetime
 from dotenv import load_dotenv
 
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from shared.utils import safe_json_parse
+
 load_dotenv()
 
 logging.basicConfig(
@@ -178,8 +182,11 @@ Keep it brief and friendly. Return JSON with "message" field."""
             ],
             response_format={"type": "json_object"}
         )
-        
-        data = json.loads(response.choices[0].message.content)
+
+        data = safe_json_parse(
+            response.choices[0].message.content,
+            {"message": "Let's practice! Can you tell me about the different roles bees have in the hive?"}
+        )
         message = data.get("message", "Let's practice! Can you tell me about the different roles bees have in the hive?")
         
         self.conversation_history.append({"role": "assistant", "content": message})
@@ -212,9 +219,11 @@ Keep it brief and friendly. Return JSON with "message" field."""
             messages=messages,
             response_format={"type": "json_object"}
         )
-        
-        data = json.loads(response.choices[0].message.content)
-        
+
+        data = safe_json_parse(
+            response.choices[0].message.content,
+            {"message": "That's interesting! Can you tell me more?"}
+        )
         message = data.get("message", "That's interesting! Can you tell me more?")
         
         # Track evaluation if present

@@ -17,12 +17,15 @@ After all 6, evaluate and output simple plan:
 from openai import OpenAI
 from pydantic import BaseModel
 from typing import Optional, Literal
-import json
 import yaml
 import os
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
+
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from shared.utils import safe_json_parse
 
 load_dotenv()
 
@@ -186,7 +189,10 @@ Return JSON:
             response_format={"type": "json_object"}
         )
 
-        eval_data = json.loads(response.choices[0].message.content)
+        eval_data = safe_json_parse(
+            response.choices[0].message.content,
+            {"level": "medium", "reason": "Unable to evaluate"}
+        )
         level = eval_data.get("level", "medium").lower()
 
         # Validate level

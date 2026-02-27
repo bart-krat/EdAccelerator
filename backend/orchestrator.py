@@ -15,6 +15,7 @@ import yaml
 from typing import Optional
 
 from state import SessionState, get_session_store, Phase
+from shared.utils import safe_json_parse
 from shared.passage import PASSAGE
 
 # Import agents
@@ -446,10 +447,15 @@ Return JSON:
             response_format={"type": "json_object"}
         )
 
-        result = json.loads(response.choices[0].message.content)
+        default_result = {
+            "score": 0,
+            "summary": "Unable to evaluate quiz responses.",
+            "question_reviews": []
+        }
+        result = safe_json_parse(response.choices[0].message.content, default_result)
 
         # Merge the review back with question details
-        for review in result["question_reviews"]:
+        for review in result.get("question_reviews", []):
             qa = next((q for q in qa_pairs if q["question_id"] == review["question_id"]), None)
             if qa:
                 review["question"] = qa["question"]
@@ -491,8 +497,8 @@ Return JSON:
             response_format={"type": "json_object"}
         )
 
-        import json
-        return json.loads(response.choices[0].message.content)
+        default_result = {"is_correct": False, "feedback": "Unable to evaluate answer."}
+        return safe_json_parse(response.choices[0].message.content, default_result)
 
     def _build_review_intro(self) -> str:
         """Build the intro message for the review phase."""

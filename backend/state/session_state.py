@@ -144,13 +144,23 @@ class SessionStore:
     In-memory storage for session states.
 
     For production, this could be backed by Redis or a database.
+    Includes TTL-based cleanup to prevent memory leaks.
     """
+
+    # Sessions older than this are eligible for cleanup
+    SESSION_TTL_HOURS = 24
+    # Maximum sessions before forcing cleanup
+    MAX_SESSIONS = 1000
 
     def __init__(self):
         self._sessions: dict[str, SessionState] = {}
 
     def create(self, session_id: str) -> SessionState:
         """Create a new session."""
+        # Cleanup old sessions if we're at capacity
+        if len(self._sessions) >= self.MAX_SESSIONS:
+            self._cleanup_old_sessions()
+
         state = SessionState(session_id=session_id)
         self._sessions[session_id] = state
         return state
@@ -179,6 +189,26 @@ class SessionStore:
     def count(self) -> int:
         """Count active sessions."""
         return len(self._sessions)
+
+    def _cleanup_old_sessions(self) -> int:
+        """
+        Remove sessions older than SESSION_TTL_HOURS.
+
+        Returns:
+            Number of sessions removed
+        """
+        from datetime import timedelta
+
+        cutoff = datetime.now() - timedelta(hours=self.SESSION_TTL_HOURS)
+        old_sessions = [
+            sid for sid, state in self._sessions.items()
+            if state.created_at < cutoff
+        ]
+
+        for sid in old_sessions:
+            del self._sessions[sid]
+
+        return len(old_sessions)
 
 
 # Global session store instance

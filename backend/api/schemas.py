@@ -43,8 +43,8 @@ class StartSessionResponse(BaseModel):
 
 class ChatRequest(BaseModel):
     """Request to send a message in an active session."""
-    session_id: str = Field(..., description="Session identifier")
-    message: str = Field(..., min_length=1, description="User's message")
+    session_id: str = Field(..., min_length=1, max_length=100, description="Session identifier")
+    message: str = Field(..., min_length=1, max_length=2000, description="User's message")
 
 
 class QuizQuestion(BaseModel):

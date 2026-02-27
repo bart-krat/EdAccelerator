@@ -110,6 +110,15 @@ async def startup_event():
     logger.info(f"   Allowed Origins: {allowed_origins}")
     logger.info("=" * 50)
 
+    # Validate required environment variables
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if not openai_key:
+        logger.error("OPENAI_API_KEY environment variable is not set!")
+        raise RuntimeError("OPENAI_API_KEY is required but not configured")
+    if openai_key.startswith("sk-") is False and openai_key != "test":
+        logger.warning("OPENAI_API_KEY may be invalid (expected sk-... format)")
+    logger.info("✅ OPENAI_API_KEY configured")
+
     # Generate question pools at startup
     # In development, always regenerate. In production, use cache if available.
     force_regen = (ENV == "development")

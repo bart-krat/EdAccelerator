@@ -4,7 +4,7 @@ The decision to have two separate servers was made for the ability to scale out 
 
 **My-app**
 
-The frontend in NextJS is primarily focused on the UI/UX. 
+The frontend in NextJS is primarily focused on the UI/UX.
 
 The session follows a linear structure.
 
@@ -13,6 +13,18 @@ First the student must read the passage, using a mouse hover over the text to en
 This is in direct response to the user feedback of " it's annoying seeing the entire passage".
 
 Once the User completes the reading then the actual teaching begins.
+
+**Key Components** (`my-app/components/`)
+
+| Component | Purpose |
+|-----------|---------|
+| `Chat.tsx` | Main orchestrator for the UI. Manages session state, handles API calls to backend (`/start`, `/chat`), coordinates phase transitions, and renders child components. |
+| `PassageDisplay.tsx` | Sentence-by-sentence reading tracker with hover detection and progress bar. |
+| `ChatMessage.tsx` | Renders individual messages with role-based styling (user vs tutor). |
+| `QuizOverlay.tsx` | Modal overlay for the quiz phase. Handles answer collection, submission to backend, and displays results with per-question feedback. |
+| `ScoreCard.tsx` | Visual score display with category breakdowns and color-coded progress bars. |
+
+Supporting files in `my-app/lib/` contain type definitions (`types.ts`) and the sample passage data (`evaluation.ts`).
 
 Without the Student knowing the structure is Evaluation -> Teach -> Quiz -> Review.
 
